@@ -30,7 +30,7 @@ func PreorderTravel(root *TreeNode) []string {
 	// 向左探到底后需在右子树继续向左探底，所以需要两个root不等于nil的for循环
 	for root != nil || len(stack) > 0 {
 		for root != nil {
-			// 前序遍历，先将value加入到
+			// 前序遍历，先将value加入到result
 			result = append(result, root.Value)
 			stack = append(stack, root)
 			root = root.Left
@@ -41,6 +41,59 @@ func PreorderTravel(root *TreeNode) []string {
 		root = node.Right
 		// pop栈顶
 		stack = stack[:len(stack)-1]
+	}
+
+	return result
+}
+
+// InorderTravel 中序非递归遍历
+func InorderTravel(root *TreeNode) []string {
+	if root == nil {
+		return nil
+	}
+
+	result := make([]string, 0)
+	stack := make([]*TreeNode, 0)
+	for root != nil || len(stack) > 0 {
+		for root != nil {
+			stack = append(stack, root)
+			root = root.Left
+		}
+
+		// pop
+		node := stack[len(stack)-1]
+		result = append(result, node.Value)
+		stack = stack[:len(stack)-1]
+		root = node.Right
+	}
+
+	return result
+}
+
+// PostorderTravel 后续非递归遍历
+func PostorderTravel(root *TreeNode) []string {
+	if root == nil {
+		return nil
+	}
+
+	var lastVisit *TreeNode
+	result := make([]string, 0)
+	stack := make([]*TreeNode, 0)
+	for root != nil || len(stack) > 0 {
+		for root != nil {
+			stack = append(stack, root)
+			root = root.Left
+		}
+
+		node := stack[len(stack)-1]
+		if node.Right == nil || node.Right == lastVisit {
+			// 向右探到底或从右边底部往上回时，pop
+			result = append(result, node.Value)
+			lastVisit = node
+			stack = stack[:len(stack)-1]
+		} else {
+			root = node.Right
+		}
 	}
 
 	return result
