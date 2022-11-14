@@ -6,7 +6,7 @@ type TreeNode struct {
 	Right *TreeNode // 右子树
 }
 
-// Travel 前、中、后序遍历示例
+// Travel 前、中、后序遍历示例（递归实现）
 func Travel(root *TreeNode) {
 	if root == nil {
 		return
