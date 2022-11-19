@@ -31,8 +31,11 @@ func SelectionSort(nums []int) {
 func InsertionSort(nums []int) {
 	for j := 1; j < len(nums); j++ {
 		// 把首项视为一个有序数组，从第二项开始将值插入到该有序数组中
-		for i := 0; i <= j; i++ {
-			if
+		for i := j - 1; i >= 0; i-- {
+			// 0~j-1的有序数组，从后往前swap
+			if nums[i] > nums[i+1] {
+				nums[i], nums[i+1] = nums[i+1], nums[i]
+			}
 		}
 	}
 }
