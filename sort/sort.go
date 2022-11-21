@@ -40,6 +40,26 @@ func InsertionSort(nums []int) {
 	}
 }
 
+// ShellSort 希尔排序
+// 希尔排序是把数组按下标的一定增量分组
+// 对每组使用直接插入排序算法排序
+// 随着增量逐渐减少，每组成员越来越多
+// 当增量减至1时，整个数组恰被分成一组，算法便终止。
+func ShellSort(nums []int) {
+	// 以i为间隔分组，如[0, i, 2i]、[1, 1+i, 1+2i]，分组间隔从len(nums)/2逐渐除以2，直到间隔为1
+	for i := len(nums) / 2; i > 0; i /= 2 {
+		// 组内进行插入排序
+		// 跳过第一个i间隔后，j进行自增1的循环，因为每组相同位置的差值为1
+		// 例：groupA=[0, i, 2i]，groupB=[1, 1+i, 1+2i]，groupB[j] = groupA[j]+1
+		// 所以使用j++的for循环并在循环内swap符合条件的nums[j]与nums[j-i],能对所有组进行插入排序
+		for j := i; j < len(nums); j++ {
+			if nums[j] < nums[j-i] {
+				nums[j], nums[j-i] = nums[j-i], nums[j]
+			}
+		}
+	}
+}
+
 // QuickSort 快速排序
 func QuickSort(nums []int) {
 	length := len(nums)
