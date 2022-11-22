@@ -60,6 +60,49 @@ func ShellSort(nums []int) {
 	}
 }
 
+// MergeSort 归并排序
+func MergeSort(nums []int) []int {
+	if len(nums) <= 1 {
+		return nums
+	}
+
+	mid := len(nums) / 2
+	left := MergeSort(nums[:mid])
+	right := MergeSort(nums[mid:])
+
+	// merge
+	l, r, i := 0, 0, 0
+	ret := make([]int, len(nums))
+	for l < mid && r < len(right) {
+		if left[l] < right[r] {
+			ret[i] = left[l]
+			l++
+		} else {
+			ret[i] = right[r]
+			r++
+		}
+
+		i++
+	}
+
+	// 左或右数组遍历完后，另一边数组还有剩余成员的情况
+	for l < mid || r < len(right) {
+		if l < mid {
+			ret[i] = left[l]
+			l++
+		}
+
+		if r < len(right) {
+			ret[i] = right[r]
+			r++
+		}
+
+		i++
+	}
+
+	return ret
+}
+
 // QuickSort 快速排序
 func QuickSort(nums []int) {
 	length := len(nums)
