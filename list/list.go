@@ -1,17 +1,10 @@
 package list
 
-// Node 链表节点结构
-// 包含指向下一个节点的指针和节点值
-type Node struct {
-	Next  *Node // 指向下一个节点的指针
-	Value int   // 节点存储的整数值
-}
-
 // QuickSort 链表快速排序
 // 对链表进行原地快速排序，不需要额外的存储空间
 // 参数:
 //   - head: 链表头节点指针
-func QuickSort(head *Node) {
+func QuickSort(head *ListNode) {
 	recursiveQuickSort(head, nil)
 }
 
@@ -19,13 +12,13 @@ func QuickSort(head *Node) {
 // 参数:
 //   - head: 当前需要排序的链表头节点
 //   - tail: 排序范围的尾部边界（不包含在排序范围内）
-func recursiveQuickSort(head *Node, tail *Node) {
+func recursiveQuickSort(head *ListNode, tail *ListNode) {
 	if head == nil || head.Next == nil {
 		return
 	}
 
 	// 快排实现
-	dummy := &Node{
+	dummy := &ListNode{
 		Next:  head,
 		Value: 0, // 创建一个虚拟头节点，简化边界情况处理
 	}
@@ -64,8 +57,8 @@ func recursiveQuickSort(head *Node, tail *Node) {
 //
 // 返回值:
 //   - *Node: 翻转后的链表头节点指针
-func ReverseKGroup(head *Node, k int) *Node {
-	dummy := &Node{
+func ReverseKGroup(head *ListNode, k int) *ListNode {
+	dummy := &ListNode{
 		Next:  head,
 		Value: 0, // 创建虚拟头节点，简化边界情况处理
 	}
@@ -102,7 +95,7 @@ func ReverseKGroup(head *Node, k int) *Node {
 // 返回值:
 //   - *Node: 翻转后的起始节点（原tail）
 //   - *Node: 翻转后的结束节点（原head）
-func reverse(head *Node, tail *Node) (*Node, *Node) {
+func reverse(head *ListNode, tail *ListNode) (*ListNode, *ListNode) {
 	prev := tail.Next // 保存tail的下一个节点作为新的尾部
 	p := head         // 当前处理的节点
 	for prev != tail {
