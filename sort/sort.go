@@ -160,20 +160,32 @@ func QuickSort(nums []int) {
 //   - nums: 需要排序的整数数组
 func HeapSort(nums []int) {
 	// 从最后一个非叶子节点开始建立最大堆
-	for i := len(nums)/2 - 1; i > 0; i-- {
+	// 最后一个非叶子节点的索引是 len(nums)/2 - 1
+	// 例如：数组长度为6时，最后一个非叶子节点索引为2
+	// 数组：[0,1,2,3,4,5]
+	// 树结构：
+	//      0
+	//     / \
+	//    1   2    <- 最后一个非叶子节点
+	//   / \ /
+	//  3  4 5
+	for i := len(nums)/2 - 1; i >= 0; i-- {
 		sink(nums, i)
 	}
 
-	// 最大堆形成，根节点为最大值，直接将其挪到最后
+	// 最大堆形成后，根节点(索引0)为最大值
+	// 将最大值与末尾元素交换，然后对剩余元素重新建立最大堆
 	for i := len(nums) - 1; i > 0; i-- {
 		nums[0], nums[i] = nums[i], nums[0]
-		// 除了最后的节点外，再建一次最大堆，此时只用从首项开始sink
+		// 对剩余元素重新建立最大堆
+		// 注意：这里只对nums[:i]进行sink操作，因为nums[i:]已经排好序
 		sink(nums[:i], 0)
 	}
 }
 
 // sink 下沉操作，用于堆排序
 // 将指定节点下沉到合适位置，保持最大堆性质
+// 时间复杂度: O(logn)
 // 参数:
 //   - nums: 堆数组
 //   - i: 需要下沉的节点索引
@@ -182,29 +194,31 @@ func sink(nums []int, i int) {
 		// 使用biggest记录当前子树中最大节点的index
 		biggest := i
 		length := len(nums)
-		// 注意需要判断子节点index是否越界
+
+		// 计算左右子节点的索引
 		lChild := 2*i + 1
 		rChild := 2*i + 2
 
-		// 先找出i节点与左子节点中最大值的index
+		// 比较当前节点与左子节点
 		if lChild < length && nums[i] < nums[lChild] {
 			biggest = lChild
 		}
 
-		// 此时的biggest储存了i节点与左子节点中的最大值index， 再将该index节点与右子节点比较，得到三者中最大节点
+		// 比较当前最大值与右子节点
 		if rChild < length && nums[biggest] < nums[rChild] {
 			biggest = rChild
 		}
 
+		// 如果biggest仍然是i，说明当前节点已经大于其子节点
+		// 满足最大堆性质，无需继续下沉
 		if biggest == i {
-			// 当前子树是最大堆，无需swap，直接break
 			break
 		}
 
-		// swap 最大节点与i节点
+		// 交换当前节点与最大子节点
 		nums[i], nums[biggest] = nums[biggest], nums[i]
 
-		// 此时被换下来的节点的子节点可能比它大，往下sink
+		// 继续下沉被交换下来的节点
 		i = biggest
 	}
 }

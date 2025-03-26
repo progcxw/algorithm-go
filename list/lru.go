@@ -75,6 +75,7 @@ func (lru *LRUCache) Get(key int) int {
 		return node.Value
 	}
 
+	// 按题目要求，找不到返回-1
 	return -1
 }
 
@@ -86,21 +87,18 @@ func (lru *LRUCache) Put(key int, value int) {
 		return
 	}
 
-	// 创建新节点
+	// 创建新节点, 添加到缓存
 	newNode := &DoubleLinkedListNode{
 		Key:   key,
 		Value: value,
 	}
-
-	// 添加到缓存
 	lru.CacheMap[key] = newNode
 
-	// 如果是第一个节点
+	// 如果是第一个节点, 更新头部和尾部; 否则, 添加到头部
 	if lru.Head == nil {
 		lru.Head = newNode
 		lru.Tail = newNode
 	} else {
-		// 移动到头部
 		newNode.Next = lru.Head
 		lru.Head.Prev = newNode
 		lru.Head = newNode
