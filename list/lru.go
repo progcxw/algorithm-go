@@ -1,111 +1,54 @@
 package list
 
-// LRUCache LRU缓存, Last Recently Used, 最近使用的排到前面，最久未使用的末位淘汰
+// LRUCache 最近最少使用老化机制的缓存，使用双向链表记录使用顺序，map实现缓存
 type LRUCache struct {
-	Capacity int
-	CacheMap map[int]*DoubleLinkedListNode
-	Head     *DoubleLinkedListNode
-	Tail     *DoubleLinkedListNode
+	cap   int
+	size  int
+	cache map[int]*DLLNode
+	list  *DoubleLinkedList
 }
 
-// Constructor 构造LRU缓存
-func Constructor(capacity int) LRUCache {
-	return LRUCache{
-		Capacity: capacity,
-		CacheMap: make(map[int]*DoubleLinkedListNode, capacity),
-		Head:     nil,
-		Tail:     nil,
+// New 创建一个LRUCache实例
+func New(capacity int) *LRUCache {
+	return &LRUCache{
+		cap:   capacity,
+		cache: make(map[int]*DLLNode, capacity),
+		list:  NewDoubleLinkedList(),
 	}
 }
 
-// moveToHead 将节点移动到头部
-func (lru *LRUCache) moveToHead(node *DoubleLinkedListNode) {
-	// 如果节点已经在头部，直接返回
-	if node == lru.Head {
+// Get 从缓存中获取数据，如果不存在则返回-1
+func (c *LRUCache) Get(key int) int {
+	node, ok := c.cache[key]
+	if !ok {
+		return -1
+	}
+
+	c.list.Remove(node)
+	c.list.InsertHead(node)
+	return node.value
+}
+
+// Put 将数据放入缓存，如果缓存已满则淘汰最久未使用的数据
+func (c *LRUCache) Put(key int, val int) {
+	node, ok := c.cache[key]
+	if ok {
+		c.list.Remove(node)
+		node.value = val
+		c.list.InsertHead(node)
 		return
 	}
 
-	// 如果是第一个节点
-	if lru.Head == nil {
-		lru.Head = node
-		lru.Tail = node
-		return
+	if c.size == c.cap {
+		tail := c.list.Tail()
+		c.list.Remove(tail)
+		delete(c.cache, tail.key)
 	}
 
-	// 如果节点是尾部，更新尾部
-	if node == lru.Tail {
-		lru.Tail = node.Prev
-		if lru.Tail != nil {
-			lru.Tail.Next = nil
-		}
+	node = &DLLNode{
+		key:   key,
+		value: val,
 	}
-
-	// 从当前位置移除节点
-	if node.Prev != nil {
-		node.Prev.Next = node.Next
-	}
-	if node.Next != nil {
-		node.Next.Prev = node.Prev
-	}
-
-	// 将节点放到头部
-	node.Prev = nil
-	node.Next = lru.Head
-	lru.Head.Prev = node
-	lru.Head = node
-}
-
-// removeTail 删除尾部节点
-func (lru *LRUCache) removeTail() {
-	if lru.Tail == nil {
-		return
-	}
-
-	delete(lru.CacheMap, lru.Tail.Key)
-	lru.Tail = lru.Tail.Prev
-	if lru.Tail != nil {
-		lru.Tail.Next = nil
-	}
-}
-
-// Get 获取缓存
-func (lru *LRUCache) Get(key int) int {
-	if node, ok := lru.CacheMap[key]; ok {
-		lru.moveToHead(node)
-		return node.Value
-	}
-
-	// 按题目要求，找不到返回-1
-	return -1
-}
-
-// Put 添加缓存
-func (lru *LRUCache) Put(key int, value int) {
-	if node, ok := lru.CacheMap[key]; ok {
-		node.Value = value
-		lru.moveToHead(node)
-		return
-	}
-
-	// 创建新节点, 添加到缓存
-	newNode := &DoubleLinkedListNode{
-		Key:   key,
-		Value: value,
-	}
-	lru.CacheMap[key] = newNode
-
-	// 如果是第一个节点, 更新头部和尾部; 否则, 添加到头部
-	if lru.Head == nil {
-		lru.Head = newNode
-		lru.Tail = newNode
-	} else {
-		newNode.Next = lru.Head
-		lru.Head.Prev = newNode
-		lru.Head = newNode
-	}
-
-	// 如果缓存超过容量，删除尾部节点
-	if len(lru.CacheMap) > lru.Capacity {
-		lru.removeTail()
-	}
+	c.list.InsertHead(node)
+	c.cache[key] = node
 }

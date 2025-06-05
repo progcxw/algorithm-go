@@ -390,3 +390,11 @@ func sinkMin(nums []int, i, heapSize int) {
 		i = smallest
 	}
 }
+
+// 三数之和
+// 给定一个整数数组，找出所有满足三个数相加为0的组合
+// 参数:
+//   - nums: 整数数组
+func ThreeSum(nums []int) [][]int {
+
+}
