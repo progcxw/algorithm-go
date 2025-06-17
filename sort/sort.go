@@ -191,34 +191,28 @@ func HeapSort(nums []int) {
 //   - i: 需要下沉的节点索引
 func sink(nums []int, i int) {
 	for {
-		// 使用biggest记录当前子树中最大节点的index
-		biggest := i
+		// 使用li(largest index)记录当前子树中最大节点的index，初始化为左子节点
+		li := 2*i + 1
 		length := len(nums)
-
-		// 计算左右子节点的索引
-		lChild := 2*i + 1
-		rChild := 2*i + 2
-
-		// 比较当前节点与左子节点
-		if lChild < length && nums[i] < nums[lChild] {
-			biggest = lChild
+		// 检查li是否越界或溢出
+		if li > length || li < 0 {
+			break
 		}
 
-		// 比较当前最大值与右子节点
-		if rChild < length && nums[biggest] < nums[rChild] {
-			biggest = rChild
+		// rc(right child)为右子节点
+		rc := li + 1
+		if rc < length && nums[rc] > nums[li] {
+			li = rc
 		}
 
-		// 如果biggest仍然是i，说明当前节点已经大于其子节点
-		// 满足最大堆性质，无需继续下沉
-		if biggest == i {
+		// 如果当前节点比最大子节点还大，说明已经下沉到正确位置
+		if nums[i] > nums[li] {
 			break
 		}
 
 		// 交换当前节点与最大子节点
-		nums[i], nums[biggest] = nums[biggest], nums[i]
-
+		nums[i], nums[li] = nums[li], nums[i]
 		// 继续下沉被交换下来的节点
-		i = biggest
+		i = li
 	}
 }
