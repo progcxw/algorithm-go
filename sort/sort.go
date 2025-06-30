@@ -1,88 +1,137 @@
 package sort
 
 // BubbleSort 冒泡排序
-// 通过相邻元素比较和交换，将最大元素逐步"冒泡"到数组末尾
-// 时间复杂度: O(n²)，空间复杂度: O(1)
+//
+// 核心思想:
+// 通过重复遍历待排序的列表，比较相邻的两个元素，如果它们的顺序错误就把它们交换过来。
+// 遍历列表的工作是重复地进行直到没有再需要交换，也就是说该列表已经排序完成。
+// 每一轮遍历都会将当前未排序部分的最大（或最小）元素“冒泡”到其最终位置。
+//
+// 时间复杂度: O(n²) - 在所有情况下（最好、平均、最坏）都需要进行 n² 次比较。
+// 空间复杂度: O(1) - 只使用了常数个额外空间。
+//
 // 参数:
-//   - nums: 需要排序的整数数组
+//   - nums: 需要排序的整数切片。
 func BubbleSort(nums []int) {
-	for j := len(nums) - 1; j > 0; j-- {
-		// 每次i循环转完，j位置上的数位置定好，所以j从数组尾项遍历到首项时排序完毕
-		for i := 0; i < j; i++ {
-			// 比j大的位置都已排好序，只用遍历0到j
-			if nums[i] > nums[i+1] {
-				nums[i], nums[i+1] = nums[i+1], nums[i]
+	n := len(nums)
+	// 外层循环控制排序的轮数，每轮确定一个元素的位置。
+	for i := 0; i < n-1; i++ {
+		// 内层循环进行相邻元素的比较和交换。
+		// 每次内层循环结束后，最大的元素会被“冒泡”到数组的末尾。
+		for j := 0; j < n-1-i; j++ {
+			if nums[j] > nums[j+1] {
+				nums[j], nums[j+1] = nums[j+1], nums[j]
 			}
 		}
 	}
 }
 
 // SelectionSort 选择排序
-// 每次从未排序部分找出最小元素，放到已排序部分的末尾
-// 时间复杂度: O(n²)，空间复杂度: O(1)
+//
+// 核心思想:
+// 1. 在未排序序列中找到最小（或最大）元素，存放到排序序列的起始位置。
+// 2. 再从剩余未排序元素中继续寻找最小（或最大）元素，然后放到已排序序列的末尾。
+// 3. 重复第二步，直到所有元素均排序完毕。
+//
+// 时间复杂度: O(n²) - 无论输入数据如何，都需要进行 n² 次比较。
+// 空间复杂度: O(1) - 只使用了常数个额外空间。
+//
 // 参数:
-//   - nums: 需要排序的整数数组
+//   - nums: 需要排序的整数切片。
 func SelectionSort(nums []int) {
-	for j := 0; j < len(nums)-1; j++ {
-		// 找到j到尾项中最小的数字，将其与nums[j]交换位置
-		smallest := j
-		for i := j; i < len(nums); i++ {
-			if nums[i] < nums[smallest] {
-				smallest = i
+	n := len(nums)
+	// 外层循环控制已排序部分的边界。
+	for i := 0; i < n-1; i++ {
+		minIndex := i // 记录当前未排序部分的最小元素的索引。
+		// 内层循环在未排序部分查找最小元素。
+		for j := i + 1; j < n; j++ {
+			if nums[j] < nums[minIndex] {
+				minIndex = j
 			}
 		}
-		nums[j], nums[smallest] = nums[smallest], nums[j]
+		// 将找到的最小元素与当前未排序部分的第一个元素交换。
+		nums[i], nums[minIndex] = nums[minIndex], nums[i]
 	}
 }
 
 // InsertionSort 插入排序
-// 构建有序序列，对于未排序数据，在已排序序列中从后向前扫描，找到相应位置并插入
-// 时间复杂度: O(n²)，空间复杂度: O(1)
+//
+// 核心思想:
+// 1. 将第一个元素视为已排序部分，其余元素视为未排序部分。
+// 2. 遍历未排序部分，取出每个元素，在已排序部分中从后向前扫描。
+// 3. 找到该元素在已排序部分中的正确位置，并将其插入。
+//   - 如果当前元素小于已排序部分的元素，则将已排序部分的元素向后移动一位。
+//   - 直到找到一个小于或等于当前元素的元素，或者到达已排序部分的开头。
+//
+// 时间复杂度: O(n²) - 最坏情况（逆序）。O(n) - 最好情况（已排序）。
+// 空间复杂度: O(1) - 只使用了常数个额外空间。
+//
 // 参数:
-//   - nums: 需要排序的整数数组
+//   - nums: 需要排序的整数切片。
 func InsertionSort(nums []int) {
-	for j := 1; j < len(nums); j++ {
-		// 把首项视为一个有序数组，从第二项开始将值插入到该有序数组中
-		for i := j - 1; i >= 0; i-- {
-			// 0~j-1的有序数组，从后往前swap
-			if nums[i] > nums[i+1] {
-				nums[i], nums[i+1] = nums[i+1], nums[i]
-			}
+	n := len(nums)
+	// 从第二个元素开始遍历，将其插入到已排序部分。
+	for i := 1; i < n; i++ {
+		current := nums[i] // 待插入的元素。
+		j := i - 1         // 已排序部分的最后一个元素的索引。
+		// 在已排序部分中从后向前查找插入位置。
+		for j >= 0 && nums[j] > current {
+			nums[j+1] = nums[j] // 元素后移。
+			j--
 		}
+		nums[j+1] = current // 插入元素。
 	}
 }
 
 // ShellSort 希尔排序
-// 希尔排序是把数组按下标的一定增量分组
-// 对每组使用直接插入排序算法排序
-// 随着增量逐渐减少，每组成员越来越多
-// 当增量减至1时，整个数组恰被分成一组，算法便终止。
-// 时间复杂度: 平均O(n^1.3)，空间复杂度: O(1)
+//
+// 核心思想:
+// 希尔排序是插入排序的一种更高效的改进版本。它通过比较相距一定间隔的元素来工作。
+// 1. 选择一个增量序列 (gap sequence)，例如 Knuth 序列 (1, 4, 13, 40, ...)。
+// 2. 对每个增量 `gap`，将数组分成 `gap` 个子序列，每个子序列由相距 `gap` 的元素组成。
+// 3. 对每个子序列进行插入排序。
+// 4. 逐渐减小 `gap`，重复步骤 2 和 3，直到 `gap` 为 1。当 `gap` 为 1 时，整个数组被视为一个子序列，进行最后一次插入排序，此时数组基本有序，插入排序效率很高。
+//
+// 时间复杂度: 平均 O(n^1.3) - 具体取决于增量序列。最坏 O(n²)。
+// 空间复杂度: O(1) - 只使用了常数个额外空间。
+//
 // 参数:
-//   - nums: 需要排序的整数数组
+//   - nums: 需要排序的整数切片。
 func ShellSort(nums []int) {
-	// 以i为间隔分组，如[0, i, 2i]、[1, 1+i, 1+2i]，分组间隔从len(nums)/2逐渐除以2，直到间隔为1
-	for i := len(nums) / 2; i > 0; i /= 2 {
-		// 组内进行插入排序
-		// 跳过第一个i间隔后，j进行自增1的循环，因为每组相同位置的差值为1
-		// 例：groupA=[0, i, 2i]，groupB=[1, 1+i, 1+2i]，groupB[j] = groupA[j]+1
-		// 所以使用j++的for循环并在循环内swap符合条件的nums[j]与nums[j-i],能对所有组进行插入排序
-		for j := i; j < len(nums); j++ {
-			if nums[j] < nums[j-i] {
-				nums[j], nums[j-i] = nums[j-i], nums[j]
+	n := len(nums)
+	// 选择增量序列，这里使用 n/2, n/4, ..., 1
+	for gap := n / 2; gap > 0; gap /= 2 {
+		// 对每个子序列进行插入排序
+		for i := gap; i < n; i++ {
+			current := nums[i]
+			j := i - gap
+			// 在当前子序列中进行插入排序
+			for j >= 0 && nums[j] > current {
+				nums[j+gap] = nums[j]
+				j -= gap
 			}
+			nums[j+gap] = current
 		}
 	}
 }
 
 // MergeSort 归并排序
-// 采用分治法，将已有序的子序列合并，得到完全有序的序列
-// 时间复杂度: O(nlogn)，空间复杂度: O(n)
+//
+// 核心思想:
+// 归并排序是分治法的一个典型应用。
+// 1. 分解 (Divide): 将待排序的序列分解成两个子序列。
+// 2. 解决 (Conquer): 递归地对这两个子序列进行排序。
+// 3. 合并 (Combine): 将两个已排序的子序列合并成一个完整的有序序列。
+// 合并操作是归并排序的关键，它通过比较两个子序列的元素，逐步构建出最终的有序序列。
+//
+// 时间复杂度: O(n log n) - 无论输入数据如何，性能都稳定。
+// 空间复杂度: O(n) - 需要额外的空间来存储合并过程中的临时数组。
+//
 // 参数:
-//   - nums: 需要排序的整数数组
+//   - nums: 需要排序的整数切片。
 //
 // 返回值:
-//   - []int: 排序后的数组
+//   - []int: 排序后的新切片。
 func MergeSort(nums []int) []int {
 	if len(nums) <= 1 {
 		return nums
@@ -92,127 +141,148 @@ func MergeSort(nums []int) []int {
 	left := MergeSort(nums[:mid])  // 递归排序左半部分
 	right := MergeSort(nums[mid:]) // 递归排序右半部分
 
-	// 合并两个有序数组
-	l, r, i := 0, 0, 0
-	ret := make([]int, len(nums))
-	for l < mid && r < len(right) {
+	// 合并两个有序切片
+	result := make([]int, 0, len(left)+len(right))
+	l, r := 0, 0
+	for l < len(left) && r < len(right) {
 		if left[l] < right[r] {
-			ret[i] = left[l]
+			result = append(result, left[l])
 			l++
 		} else {
-			ret[i] = right[r]
+			result = append(result, right[r])
 			r++
 		}
-
-		i++
 	}
 
-	// 左或右数组遍历完后，另一边数组还有剩余成员的情况
-	for l < mid || r < len(right) {
-		if l < mid {
-			ret[i] = left[l]
-			l++
-		}
+	// 将剩余元素添加到结果切片
+	result = append(result, left[l:]...)
+	result = append(result, right[r:]...)
 
-		if r < len(right) {
-			ret[i] = right[r]
-			r++
-		}
-
-		i++
-	}
-
-	return ret
+	return result
 }
 
 // QuickSort 快速排序
-// 通过一趟排序将待排记录分隔成独立的两部分，其中一部分记录的关键字均比另一部分的关键字小
-// 时间复杂度: 平均O(nlogn)，最坏O(n²)，空间复杂度: O(logn)
+//
+// 核心思想:
+// 快速排序是一种高效的、基于比较的排序算法，采用分治法。
+// 1. 选择一个“基准”元素 (pivot)。
+// 2. 分区 (Partition): 重新排列数组，使得所有小于基准值的元素都移到基准的左边，所有大于基准值的元素都移到基准的右边。在这个分区结束之后，该基准就处于其最终的正确位置。
+// 3. 递归 (Recursion): 递归地对基准左边和右边的两个子序列重复上述步骤，直到所有元素都排好序。
+//
+// 时间复杂度: 平均 O(n log n) - 每次分区都能将问题规模大致减半。最坏 O(n²) - 当选择的基准导致不平衡分区时（例如，每次都选择最大或最小元素）。
+// 空间复杂度: O(log n) - 递归调用栈的深度，平均情况。最坏 O(n)。
+//
 // 参数:
-//   - nums: 需要排序的整数数组
+//   - nums: 需要排序的整数切片。
 func QuickSort(nums []int) {
-	length := len(nums)
-	if length <= 1 {
-		return
-	}
+	quickSortRecursive(nums, 0, len(nums)-1)
+}
 
-	pos := 0
-	end := length - 1
-	for i := 0; i < length; i++ {
-		// 以数组的尾项为基准，将比其小的挪至数组前方并记录位置
-		if nums[i] < nums[end] {
-			nums[i], nums[pos] = nums[pos], nums[i]
-			pos++
+// quickSortRecursive 快速排序的递归辅助函数。
+//
+// 参数:
+//   - nums: 整数切片。
+//   - low: 当前子切片的起始索引。
+//   - high: 当前子切片的结束索引。
+func quickSortRecursive(nums []int, low, high int) {
+	if low < high {
+		// 进行分区操作，获取基准元素的最终位置。
+		pivotIndex := partition(nums, low, high)
+
+		// 递归排序基准左右两边的子切片。
+		quickSortRecursive(nums, low, pivotIndex-1)
+		quickSortRecursive(nums, pivotIndex+1, high)
+	}
+}
+
+// partition 分区操作 (Lomuto 分区方案)。
+//
+// 核心思想:
+// 1. 选择最后一个元素作为基准 (pivot)。
+// 2. 遍历数组，将所有小于基准的元素移到数组的左侧。
+// 3. 将基准元素放到正确的位置，即所有小于它的元素之后，所有大于它的元素之前。
+//
+// 参数:
+//   - nums: 整数切片。
+//   - low: 当前子切片的起始索引。
+//   - high: 当前子切片的结束索引。
+//
+// 返回值:
+//   - int: 基准元素最终的索引位置。
+func partition(nums []int, low, high int) int {
+	pivot := nums[high] // 选择最后一个元素作为基准。
+	i := low - 1        // i 指向小于基准的区域的右边界。
+
+	for j := low; j < high; j++ {
+		if nums[j] < pivot {
+			i++
+			nums[i], nums[j] = nums[j], nums[i] // 交换，将小于基准的元素移到左侧。
 		}
 	}
-	// 最后挪至的位置后一位即是分界点（前面比基准小，后面比基准大），把基准数swap到分界点
-	nums[end], nums[pos] = nums[pos], nums[end]
 
-	// 分而治之
-	QuickSort(nums[:pos])   // 递归排序小于基准的部分
-	QuickSort(nums[pos+1:]) // 递归排序大于基准的部分
+	nums[i+1], nums[high] = nums[high], nums[i+1] // 将基准元素放到正确位置。
+	return i + 1
 }
 
 // HeapSort 堆排序
-// 利用堆这种数据结构所设计的一种排序算法
-// 时间复杂度: O(nlogn)，空间复杂度: O(1)
+//
+// 核心思想:
+// 堆排序是一种利用堆数据结构（通常是最大堆）进行排序的算法。
+// 1. 构建最大堆 (Build Max Heap): 将待排序的数组构建成一个最大堆。构建完成后，堆的根节点（数组的第一个元素）是最大的元素。
+// 2. 堆排序 (Heapify): 将堆顶元素（最大值）与堆的最后一个元素交换。然后将堆的大小减 1，并对新的堆顶元素进行“下沉”操作 (sink)，以恢复堆的性质。重复此过程，直到堆的大小为 1。
+//
+// 时间复杂度: O(n log n) - 构建堆需要 O(n)，每次调整堆需要 O(log n)，共 n-1 次调整。
+// 空间复杂度: O(1) - 原地排序，不需要额外的存储空间。
+//
 // 参数:
-//   - nums: 需要排序的整数数组
+//   - nums: 需要排序的整数切片。
 func HeapSort(nums []int) {
-	// 从最后一个非叶子节点开始建立最大堆
-	// 最后一个非叶子节点的索引是 len(nums)/2 - 1
-	// 例如：数组长度为6时，最后一个非叶子节点索引为2
-	// 数组：[0,1,2,3,4,5]
-	// 树结构：
-	//      0
-	//     / \
-	//    1   2    <- 最后一个非叶子节点
-	//   / \ /
-	//  3  4 5
-	for i := len(nums)/2 - 1; i >= 0; i-- {
-		sink(nums, i)
+	n := len(nums)
+	// 1. 构建最大堆：从最后一个非叶子节点开始，向上遍历所有非叶子节点，并对每个节点执行下沉操作。
+	// 最后一个非叶子节点的索引是 n/2 - 1。
+	for i := n/2 - 1; i >= 0; i-- {
+		sink(nums, i, n)
 	}
 
-	// 最大堆形成后，根节点(索引0)为最大值
-	// 将最大值与末尾元素交换，然后对剩余元素重新建立最大堆
-	for i := len(nums) - 1; i > 0; i-- {
-		nums[0], nums[i] = nums[i], nums[0]
-		// 对剩余元素重新建立最大堆
-		// 注意：这里只对nums[:i]进行sink操作，因为nums[i:]已经排好序
-		sink(nums[:i], 0)
+	// 2. 堆排序：将堆顶元素（最大值）与当前堆的最后一个元素交换，然后对剩余元素重新调整堆。
+	for i := n - 1; i > 0; i-- {
+		nums[0], nums[i] = nums[i], nums[0] // 交换堆顶元素和当前堆的最后一个元素。
+		sink(nums, 0, i)                    // 对剩余的堆（大小为 i）进行下沉操作，恢复堆性质。
 	}
 }
 
-// sink 下沉操作，用于堆排序
-// 将指定节点下沉到合适位置，保持最大堆性质
-// 时间复杂度: O(logn)
+// sink 下沉操作，用于维护最大堆的性质。
+//
+// 核心思想:
+// 将指定索引 `i` 处的元素与其子节点进行比较，如果子节点更大，则交换，并继续向下比较，直到该元素找到其在堆中的正确位置。
+//
 // 参数:
-//   - nums: 堆数组
-//   - i: 需要下沉的节点索引
-func sink(nums []int, i int) {
+//   - nums: 堆数组。
+//   - i: 需要下沉的节点索引。
+//   - heapSize: 当前堆的有效大小。
+func sink(nums []int, i, heapSize int) {
 	for {
-		// 使用li(largest index)记录当前子树中最大节点的index，初始化为左子节点
-		li := 2*i + 1
-		length := len(nums)
-		// 检查li是否越界或溢出
-		if li > length || li < 0 {
+		largest := i          // 假设当前节点是最大的。
+		leftChild := 2*i + 1  // 左子节点索引。
+		rightChild := 2*i + 2 // 右子节点索引。
+
+		// 比较当前节点与左子节点，找出三者中最大的。
+		if leftChild < heapSize && nums[leftChild] > nums[largest] {
+			largest = leftChild
+		}
+		// 比较当前最大值与右子节点。
+		if rightChild < heapSize && nums[rightChild] > nums[largest] {
+			largest = rightChild
+		}
+
+		// 如果当前节点已经是最大的，则下沉结束。
+		if largest == i {
 			break
 		}
 
-		// rc(right child)为右子节点
-		rc := li + 1
-		if rc < length && nums[rc] > nums[li] {
-			li = rc
-		}
-
-		// 如果当前节点比最大子节点还大，说明已经下沉到正确位置
-		if nums[i] > nums[li] {
-			break
-		}
-
-		// 交换当前节点与最大子节点
-		nums[i], nums[li] = nums[li], nums[i]
-		// 继续下沉被交换下来的节点
-		i = li
+		// 交换当前节点与最大的子节点。
+		nums[i], nums[largest] = nums[largest], nums[i]
+		// 继续向下沉。
+		i = largest
 	}
 }
