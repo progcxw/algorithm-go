@@ -389,21 +389,24 @@ func FindKthLargestByHeap(nums []int, k int) int {
 //   - heapSize: 当前堆的有效大小。
 func sinkForKth(nums []int, i, heapSize int) {
 	for {
-		biggest := i
-		lChild := 2*i + 1
-		rChild := 2*i + 2
-
-		if lChild < heapSize && nums[lChild] > nums[biggest] {
-			biggest = lChild
-		}
-		if rChild < heapSize && nums[rChild] > nums[biggest] {
-			biggest = rChild
-		}
-		if biggest == i {
+		// 初始化最大值的index为左子树
+		maxIndex := 2*i + 1
+		// 检查左子树是否越界或溢出
+		if maxIndex >= heapSize || maxIndex < 0 {
 			break
 		}
-		nums[i], nums[biggest] = nums[biggest], nums[i]
-		i = biggest
+		rChild := maxIndex + 1
+
+		if rChild < heapSize && nums[rChild] > nums[maxIndex] {
+			maxIndex = rChild
+		}
+		if nums[i] >= nums[maxIndex] {
+			// 已经是最大堆了
+			break
+		}
+
+		nums[i], nums[maxIndex] = nums[maxIndex], nums[i]
+		i = maxIndex
 	}
 }
 
@@ -455,35 +458,38 @@ func FindKthLargestByMinHeap(nums []int, k int) int {
 // sinkMin 最小堆的下沉操作。
 func sinkMin(nums []int, i, heapSize int) {
 	for {
-		smallest := i
-		lChild := 2*i + 1
-		rChild := 2*i + 2
-
-		if lChild < heapSize && nums[lChild] < nums[smallest] {
-			smallest = lChild
-		}
-		if rChild < heapSize && nums[rChild] < nums[smallest] {
-			smallest = rChild
-		}
-		if smallest == i {
+		// 初始化最小值的index为左子树
+		minIndex := 2*i + 1
+		// 检查左子树是否越界或溢出
+		if minIndex >= heapSize || minIndex < 0 {
 			break
 		}
-		nums[i], nums[smallest] = nums[smallest], nums[i]
-		i = smallest
+		rChild := minIndex + 1
+
+		if rChild < heapSize && nums[rChild] < nums[minIndex] {
+			minIndex = rChild
+		}
+		if nums[i] < nums[minIndex] {
+			// 已是最小堆
+			break
+		}
+
+		nums[i], nums[minIndex] = nums[minIndex], nums[i]
+		i = minIndex
 	}
 }
 
-// FindMinDifference 获取数组中的最小差值 (排序法)
+// FindMinDifference 获取数组中的最小差值，要求时间复杂度为O(n)
 //
-// 核心思想:
-// 1. 对数组进行排序。
-// 2. 排序后，任意两个元素之间的最小差值一定出现在相邻的两个元素之间。
-// 3. 遍历排序后的数组，计算并比较所有相邻元素的差值，找出最小值。
+// 核心思想：
+// 使用桶排序，
+// 先遍历一边数组找到最小值跟最大值，在以1为桶的宽度，最大差值为桶数量，
+// 最小差值必定在有值且邻近的两桶之间，
+// 把数组所有成员定位到所属的桶，再遍历一边桶就能找到最小差值了
 //
-// 这种方法比桶排序更通用，不受数据范围的影响。
-//
-// 时间复杂度: O(n log n) - 主要由排序决定。
-// 空间复杂度: O(log n) or O(n) - 取决于排序算法。
+// 时间复杂度为：遍历一边数组 n + 定位所有数组成员所属的桶 n + 遍历桶 n = 3n
+// O(n)级别，符合题目要求。
+// 缺点是当最大差值很大而数组length很小的时候，桶命中非常稀疏，会有大量空间浪费
 //
 // 参数:
 //   - arr: 整数数组。
@@ -496,31 +502,52 @@ func FindMinDifference(arr []int) int {
 		return 0
 	}
 
-	// 对数组进行排序
-	sort.Ints(arr)
-
-	minDiff := math.MaxInt32
-	for i := 1; i < n; i++ {
-		diff := arr[i] - arr[i-1]
-		if diff < minDiff {
-			minDiff = diff
+	// 找到数组中的最值
+	minV, maxV := arr[0], arr[0]
+	for _, v := range arr {
+		if v < minV {
+			minV = v
 		}
+		if v > maxV {
+			maxV = v
+		}
+	}
+	if minV == maxV {
+		return 0
+	}
+
+	// 建立桶
+	bucketsNum := maxV - minV + 1
+	type bucket struct {
+		value int
+		exist bool
+	}
+	buckets := make([]bucket, bucketsNum)
+	for _, v := range arr {
+		// 填充桶
+		i := v - minV
+		if buckets[i].exist {
+			// 存在重复值，则最小差值为0
+			return 0
+		}
+
+		// 桶首次赋值
+		buckets[i].value = v
+		buckets[i].exist = true
+	}
+
+	// bucketsNum 是最大差值+1，可将其用于minDiff初始化，方便寻找数组内的最小差值
+	minDiff := bucketsNum
+	pre := buckets[0].value // buckets首项必定为minV
+	for _, b := range buckets[1:] {
+		if !b.exist {
+			continue
+		}
+
+		// 最小差值必定在有值且邻近的两桶之间
+		minDiff = min(minDiff, b.value-pre)
+		pre = b.value
 	}
 
 	return minDiff
-}
-
-// 辅助函数
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }
