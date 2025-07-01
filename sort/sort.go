@@ -262,27 +262,26 @@ func HeapSort(nums []int) {
 //   - heapSize: 当前堆的有效大小。
 func sink(nums []int, i, heapSize int) {
 	for {
-		largest := i          // 假设当前节点是最大的。
-		leftChild := 2*i + 1  // 左子节点索引。
-		rightChild := 2*i + 2 // 右子节点索引。
+		// 假设左子节点是最大的节点
+		maxIdx := 2*i + 1
+		// 判断左子节点的index有无越界或溢出
+		if maxIdx >= heapSize || maxIdx < 0 {
+			break
+		}
+		rChild := 2*i + 2 // 右子节点索引。
 
 		// 比较当前节点与左子节点，找出三者中最大的。
-		if leftChild < heapSize && nums[leftChild] > nums[largest] {
-			largest = leftChild
+		if rChild < heapSize && nums[rChild] > nums[maxIdx] {
+			maxIdx = rChild
 		}
-		// 比较当前最大值与右子节点。
-		if rightChild < heapSize && nums[rightChild] > nums[largest] {
-			largest = rightChild
-		}
-
 		// 如果当前节点已经是最大的，则下沉结束。
-		if largest == i {
+		if nums[i] >= nums[maxIdx] {
 			break
 		}
 
 		// 交换当前节点与最大的子节点。
-		nums[i], nums[largest] = nums[largest], nums[i]
+		nums[i], nums[maxIdx] = nums[maxIdx], nums[i]
 		// 继续向下沉。
-		i = largest
+		i = maxIdx
 	}
 }
